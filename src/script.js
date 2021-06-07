@@ -13,24 +13,61 @@ const canvas = document.querySelector('canvas.webgl')
 const scene = new THREE.Scene()
 
 // Objects
-const geometry = new THREE.TorusGeometry( .7, .2, 16, 100 );
+const geometry = new THREE.SphereBufferGeometry( .5, 64, 64);
+
+// Textures
+const textureLoader = new THREE.TextureLoader()
+const normalTexture = textureLoader.load('/textures/NormalMap.png')
 
 // Materials
-
-const material = new THREE.MeshBasicMaterial()
-material.color = new THREE.Color(0xff0000)
+const material = new THREE.MeshStandardMaterial()
+material.metalness = 0.05
+material.routhes = 0.85
+material.normalMap = normalTexture
+material.color = new THREE.Color(0xf0f0f0)
 
 // Mesh
 const sphere = new THREE.Mesh(geometry,material)
 scene.add(sphere)
 
 // Lights
+const pointLight1 = new THREE.PointLight(0xff0000, 1)
+pointLight1.position.set(7,2,0)
+scene.add(pointLight1)
 
-const pointLight = new THREE.PointLight(0xffffff, 0.1)
-pointLight.position.x = 2
-pointLight.position.y = 3
-pointLight.position.z = 4
-scene.add(pointLight)
+const pointLight2 = new THREE.PointLight(0x0000ff, 1)
+pointLight2.position.set(-7,-2,0)
+scene.add(pointLight2)
+
+// Debug
+const light1 = gui.addFolder('Light 1')
+const light2 = gui.addFolder('Light 2')
+light1.add(pointLight1.position, 'x').min(-3).max(3).step(0.01)
+light1.add(pointLight1.position, 'y').min(-3).max(3).step(0.01)
+light1.add(pointLight1.position, 'z').min(-3).max(3).step(0.01)
+light1.add(pointLight1, 'intensity').min(0).max(3).step(0.1)
+const light1Colour = {
+    color: 0xff0000
+}
+light1.addColor(light1Colour, 'color')
+  .onChange(() => {
+      pointLight1.color.set(light1Colour.color)
+  })
+
+light2.add(pointLight2.position, 'x').min(-3).max(3).step(0.01)
+light2.add(pointLight2.position, 'y').min(-3).max(3).step(0.01)
+light2.add(pointLight2.position, 'z').min(-3).max(3).step(0.01)
+light2.add(pointLight2, 'intensity').min(0).max(3).step(0.1)
+const light2Colour = {
+    color: 0xff0000
+}
+light2.addColor(light2Colour, 'color')
+  .onChange(() => {
+      pointLight2.color.set(light2Colour.color)
+  })
+
+const pointLightHelper = new THREE.PointLightHelper(pointLight2, 0.5)
+scene.add(pointLightHelper)
 
 /**
  * Sizes
@@ -73,7 +110,8 @@ scene.add(camera)
  * Renderer
  */
 const renderer = new THREE.WebGLRenderer({
-    canvas: canvas
+    canvas: canvas,
+    alpha: true
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
